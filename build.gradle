@@ -67,26 +67,18 @@ tasks.withType(JavaExec).configureEach {
   javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
 }
 
-tasks.withType(Test) {
-  useJUnitPlatform()
-
-  testLogging {
-    exceptionFormat = 'full'
-  }
-}
-
 test {
   failFast = true
 }
 
-task functional(type: Test) {
+tasks.register("functional", Test) {
   description = "Runs functional tests"
   group = "Verification"
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
 }
 
-task integration(type: Test) {
+tasks.register("integration", Test) {
   description = "Runs integration tests"
   group = "Verification"
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
@@ -94,10 +86,19 @@ task integration(type: Test) {
   failFast = true
 }
 
-task smoke(type: Test) {
+tasks.register("smoke", Test) {
   description = "Runs Smoke Tests"
   testClassesDirs = sourceSets.smokeTest.output.classesDirs
   classpath = sourceSets.smokeTest.runtimeClasspath
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
+  systemProperty "spring.profiles.active", "test"
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
 }
 
 jacocoTestReport {
@@ -150,6 +151,12 @@ ext {
 ext['snakeyaml.version'] = '2.2'
 
 dependencies {
+  // PostgreSQL for production
+  implementation 'org.postgresql:postgresql'
+
+  // H2 Database for testing
+  testImplementation 'com.h2database:h2'
+
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
@@ -175,7 +182,9 @@ dependencies {
   }
 }
 
-mainClassName = 'uk.gov.hmcts.reform.dev.Application'
+application {
+  mainClass = 'uk.gov.hmcts.reform.dev.Application'
+}
 
 bootJar {
   archiveFileName = "test-backend.jar"
