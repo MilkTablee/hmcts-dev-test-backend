@@ -1,4 +1,3 @@
-.gradle
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 *.class
@@ -11,7 +10,6 @@ bin/main/application.yaml
 .project
 .settings
 .springBeans
-.env
 
 ### IntelliJ IDEA ###
 .idea
